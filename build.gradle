@@ -63,8 +63,8 @@ dependencies {
 	testImplementation 'org.junit.jupiter:junit-jupiter-api'
 	testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
 	testImplementation 'org.mockito:mockito-core'
-	testImplementation 'org.testcontainers:junit-jupiter'
-	testImplementation 'org.testcontainers:mongodb'
+	testImplementation 'org.testcontainers:junit-jupiter:1.19.0'
+	testImplementation 'org.testcontainers:mongodb:1.19.0'
 
 	// --- Usar .env ---
 	implementation 'io.github.cdimascio:dotenv-java:3.0.0'
