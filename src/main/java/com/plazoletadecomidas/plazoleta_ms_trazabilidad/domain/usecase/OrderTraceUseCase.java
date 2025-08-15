@@ -6,6 +6,7 @@ import com.plazoletadecomidas.plazoleta_ms_trazabilidad.domain.spi.OrderTracePer
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @RequiredArgsConstructor
@@ -39,7 +40,15 @@ public class OrderTraceUseCase implements OrderTraceServicePort {
 
     @Override
     public void save(OrderTrace trace, String token) {
-        // Aquí podrías validar el token si lo necesitas para seguridad
-        persistencePort.save(trace);
+        Optional<OrderTrace> existingTraceOpt = persistencePort.findByOrderId(trace.getOrderId());
+
+        if (existingTraceOpt.isPresent()) {
+            OrderTrace existingTrace = existingTraceOpt.get();
+            existingTrace.getLogs().addAll(trace.getLogs());
+            persistencePort.save(existingTrace);
+        } else {
+            persistencePort.save(trace);
+        }
     }
+
 }

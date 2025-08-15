@@ -47,14 +47,17 @@ public class OrderTraceHandler {
     }
 
     public void saveOrderTrace(OrderTraceRequestDto dto, String token) {
-        // Aceptar CLIENTE, PROPIETARIO o EMPLEADO
-        authValidator.validate(token, Role.CLIENTE, Role.PROPIETARIO, Role.EMPLEADO);
+
+        UUID userId = authValidator.validate(token, null);
+        String role = authValidator.getRoleFromToken(token);
 
         OrderTrace trace = new OrderTrace();
         trace.setOrderId(dto.getOrderId());
         trace.setCustomerId(dto.getCustomerId());
         trace.setRestaurantId(dto.getRestaurantId());
-        trace.addLog(dto.getStatus(), "system");
+
+        // Guardar el log con rol e ID
+        trace.addLog(dto.getStatus(), role + " - " + userId);
 
         servicePort.save(trace, token);
     }

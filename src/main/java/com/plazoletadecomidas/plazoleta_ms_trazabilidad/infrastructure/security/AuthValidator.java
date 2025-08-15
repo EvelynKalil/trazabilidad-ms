@@ -19,7 +19,7 @@ public class AuthValidator {
         this.jwtUtil = jwtUtil;
     }
 
-    public UUID validate(String tokenHeader, Role... allowedRoles) {
+    public UUID validate(String tokenHeader, Role requiredRole) {
         if (tokenHeader == null || !tokenHeader.startsWith("Bearer ")) {
             throw new UnauthorizedException("Token ausente o mal formado");
         }
@@ -37,10 +37,8 @@ public class AuthValidator {
             String userId = claims.getSubject();
             String role = claims.get("role", String.class);
 
-            boolean roleValido = Arrays.stream(allowedRoles)
-                    .anyMatch(r -> r.name().equals(role));
-
-            if (!roleValido) {
+            // Solo validar si requiredRole no es null
+            if (requiredRole != null && !requiredRole.name().equals(role)) {
                 throw new UnauthorizedException("No tienes permisos para esta acción");
             }
 
@@ -50,5 +48,28 @@ public class AuthValidator {
             throw new UnauthorizedException("Token inválido o expirado");
         }
     }
+
+
+    public String getRoleFromToken(String tokenHeader) {
+        if (tokenHeader == null || !tokenHeader.startsWith("Bearer ")) {
+            throw new UnauthorizedException("Token ausente o mal formado");
+        }
+        String token = tokenHeader.replace("Bearer ", "");
+        SecretKey secretKey = jwtUtil.getSecretKey();
+
+        try {
+            Claims claims = Jwts.parserBuilder()
+                    .setSigningKey(secretKey)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+
+            return claims.get("role", String.class);
+
+        } catch (JwtException | IllegalArgumentException e) {
+            throw new UnauthorizedException("Token inválido o expirado");
+        }
+    }
+
 
 }

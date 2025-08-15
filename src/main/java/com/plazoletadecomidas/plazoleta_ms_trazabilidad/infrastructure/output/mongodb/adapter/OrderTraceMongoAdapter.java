@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -43,4 +44,11 @@ public class OrderTraceMongoAdapter implements OrderTracePersistencePort {
                 .map(mapper::toDomain)
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public Optional<OrderTrace> findByOrderId(UUID orderId) {
+        return repository.findById(orderId)
+                .map(mapper::toDomain);
+    }
+
 }
