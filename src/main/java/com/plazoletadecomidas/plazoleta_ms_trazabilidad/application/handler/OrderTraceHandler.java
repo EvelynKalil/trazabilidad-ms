@@ -1,6 +1,7 @@
 package com.plazoletadecomidas.plazoleta_ms_trazabilidad.application.handler;
 
 import com.plazoletadecomidas.plazoleta_ms_trazabilidad.application.dto.OrderEfficiencyDto;
+import com.plazoletadecomidas.plazoleta_ms_trazabilidad.application.dto.OrderTraceRequestDto;
 import com.plazoletadecomidas.plazoleta_ms_trazabilidad.domain.api.OrderTraceServicePort;
 import com.plazoletadecomidas.plazoleta_ms_trazabilidad.domain.model.OrderTrace;
 import com.plazoletadecomidas.plazoleta_ms_trazabilidad.domain.model.Role;
@@ -17,6 +18,7 @@ public class OrderTraceHandler {
 
     private final OrderTraceServicePort service;
     private final AuthValidator authValidator;
+    private final OrderTraceServicePort servicePort;
 
     // HU 17
     public OrderTrace getOrderTrace(UUID orderId, String token) {
@@ -43,5 +45,20 @@ public class OrderTraceHandler {
                 .filter(o -> o != null)
                 .toList();
     }
+
+    public void saveOrderTrace(OrderTraceRequestDto dto, String token) {
+        // Aceptar CLIENTE, PROPIETARIO o EMPLEADO
+        authValidator.validate(token, Role.CLIENTE, Role.PROPIETARIO, Role.EMPLEADO);
+
+        OrderTrace trace = new OrderTrace();
+        trace.setOrderId(dto.getOrderId());
+        trace.setCustomerId(dto.getCustomerId());
+        trace.setRestaurantId(dto.getRestaurantId());
+        trace.addLog(dto.getStatus(), "system");
+
+        servicePort.save(trace, token);
+    }
+
+
 
 }

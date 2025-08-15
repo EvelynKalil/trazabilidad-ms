@@ -36,4 +36,10 @@ public class OrderTraceUseCase implements OrderTraceServicePort {
     public List<OrderTrace> getOrdersByRestaurant(UUID restaurantId) {
         return persistencePort.findByRestaurantId(restaurantId);
     }
+
+    @Override
+    public void save(OrderTrace trace, String token) {
+        // Aquí podrías validar el token si lo necesitas para seguridad
+        persistencePort.save(trace);
+    }
 }

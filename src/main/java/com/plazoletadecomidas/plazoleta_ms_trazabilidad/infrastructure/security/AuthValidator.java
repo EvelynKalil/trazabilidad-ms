@@ -7,6 +7,7 @@ import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import org.springframework.stereotype.Component;
 import javax.crypto.SecretKey;
+import java.util.Arrays;
 import java.util.UUID;
 
 @Component
@@ -18,13 +19,13 @@ public class AuthValidator {
         this.jwtUtil = jwtUtil;
     }
 
-    public UUID validate(String tokenHeader, Role requiredRole) {
+    public UUID validate(String tokenHeader, Role... allowedRoles) {
         if (tokenHeader == null || !tokenHeader.startsWith("Bearer ")) {
             throw new UnauthorizedException("Token ausente o mal formado");
         }
 
         String token = tokenHeader.replace("Bearer ", "");
-        SecretKey secretKey = jwtUtil.getSecretKey(); //  viene de JwtUtil
+        SecretKey secretKey = jwtUtil.getSecretKey();
 
         try {
             Claims claims = Jwts.parserBuilder()
@@ -36,7 +37,10 @@ public class AuthValidator {
             String userId = claims.getSubject();
             String role = claims.get("role", String.class);
 
-            if (!requiredRole.name().equals(role)) {
+            boolean roleValido = Arrays.stream(allowedRoles)
+                    .anyMatch(r -> r.name().equals(role));
+
+            if (!roleValido) {
                 throw new UnauthorizedException("No tienes permisos para esta acción");
             }
 
@@ -46,4 +50,5 @@ public class AuthValidator {
             throw new UnauthorizedException("Token inválido o expirado");
         }
     }
+
 }

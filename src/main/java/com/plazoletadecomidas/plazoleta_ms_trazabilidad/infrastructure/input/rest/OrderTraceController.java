@@ -1,6 +1,7 @@
 package com.plazoletadecomidas.plazoleta_ms_trazabilidad.infrastructure.input.rest;
 
 import com.plazoletadecomidas.plazoleta_ms_trazabilidad.application.dto.OrderEfficiencyDto;
+import com.plazoletadecomidas.plazoleta_ms_trazabilidad.application.dto.OrderTraceRequestDto;
 import com.plazoletadecomidas.plazoleta_ms_trazabilidad.application.handler.OrderTraceHandler;
 import com.plazoletadecomidas.plazoleta_ms_trazabilidad.domain.model.OrderTrace;
 import lombok.RequiredArgsConstructor;
@@ -31,5 +32,14 @@ public class OrderTraceController {
             @RequestParam UUID restaurantId
     ) {
         return handler.efficiencyOrders(restaurantId);
+    }
+
+    // HU extra - registrar cambio de estado
+    @PostMapping("/orders")
+    public void saveOrderTrace(
+            @RequestBody OrderTraceRequestDto dto,
+            @RequestHeader("Authorization") String token
+    ) {
+        handler.saveOrderTrace(dto, token);
     }
 }

@@ -9,4 +9,5 @@ public interface OrderTraceServicePort {
     void registerStatusChange(UUID orderId, UUID customerId, UUID restaurantId, String status, String changedBy);
     OrderTrace getOrderTrace(UUID orderId, UUID customerId);
     List<OrderTrace> getOrdersByRestaurant(UUID restaurantId);
+    void save(OrderTrace trace, String token);
 }
