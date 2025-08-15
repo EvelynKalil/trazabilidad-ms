@@ -4,7 +4,6 @@ import com.plazoletadecomidas.plazoleta_ms_trazabilidad.domain.model.OrderTrace;
 import com.plazoletadecomidas.plazoleta_ms_trazabilidad.infrastructure.output.mongodb.document.OrderTraceDocument;
 import org.springframework.stereotype.Component;
 
-import java.util.stream.Collectors;
 
 @Component
 public class OrderTraceMapper {
@@ -16,7 +15,7 @@ public class OrderTraceMapper {
                 doc.getRestaurantId(),
                 doc.getLogs().stream()
                         .map(log -> new OrderTrace.StatusLog(log.getStatus(), log.getChangedAt(), log.getChangedBy()))
-                        .collect(Collectors.toList())
+                        .toList()
         );
     }
 
@@ -31,7 +30,7 @@ public class OrderTraceMapper {
                                 .changedAt(log.getChangedAt())
                                 .changedBy(log.getChangedBy())
                                 .build())
-                        .collect(Collectors.toList()))
+                        .toList())
                 .build();
     }
 }

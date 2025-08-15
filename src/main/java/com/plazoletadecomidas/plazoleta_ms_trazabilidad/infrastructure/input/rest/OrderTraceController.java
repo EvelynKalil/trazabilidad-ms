@@ -1,5 +1,6 @@
 package com.plazoletadecomidas.plazoleta_ms_trazabilidad.infrastructure.input.rest;
 
+import com.plazoletadecomidas.plazoleta_ms_trazabilidad.application.dto.EmployeeEfficiencyDto;
 import com.plazoletadecomidas.plazoleta_ms_trazabilidad.application.dto.OrderEfficiencyDto;
 import com.plazoletadecomidas.plazoleta_ms_trazabilidad.application.dto.OrderTraceRequestDto;
 import com.plazoletadecomidas.plazoleta_ms_trazabilidad.application.handler.OrderTraceHandler;
@@ -29,9 +30,19 @@ public class OrderTraceController {
     // HU 18 - eficiencia por pedido
     @GetMapping("/efficiency/orders")
     public List<OrderEfficiencyDto> efficiencyOrders(
-            @RequestParam UUID restaurantId
+            @RequestParam UUID restaurantId,
+            @RequestHeader("Authorization") String token
     ) {
-        return handler.efficiencyOrders(restaurantId);
+        return handler.efficiencyOrders(restaurantId, token);
+    }
+
+
+    @GetMapping("/efficiency/employees")
+    public List<EmployeeEfficiencyDto> efficiencyByEmployee(
+            @RequestParam UUID restaurantId,
+            @RequestHeader("Authorization") String token
+    ) {
+        return handler.efficiencyByEmployee(restaurantId, token);
     }
 
     // HU extra - registrar cambio de estado

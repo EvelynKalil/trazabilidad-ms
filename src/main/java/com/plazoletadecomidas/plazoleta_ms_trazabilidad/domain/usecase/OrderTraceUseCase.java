@@ -3,6 +3,7 @@ package com.plazoletadecomidas.plazoleta_ms_trazabilidad.domain.usecase;
 import com.plazoletadecomidas.plazoleta_ms_trazabilidad.domain.api.OrderTraceServicePort;
 import com.plazoletadecomidas.plazoleta_ms_trazabilidad.domain.model.OrderTrace;
 import com.plazoletadecomidas.plazoleta_ms_trazabilidad.domain.spi.OrderTracePersistencePort;
+import com.plazoletadecomidas.plazoleta_ms_trazabilidad.infrastructure.exception.OrderTraceNotFoundOrUnauthorizedException;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
@@ -28,7 +29,7 @@ public class OrderTraceUseCase implements OrderTraceServicePort {
     public OrderTrace getOrderTrace(UUID orderId, UUID customerId) {
         OrderTrace trace = persistencePort.findById(orderId);
         if (trace == null || !trace.getCustomerId().equals(customerId)) {
-            throw new RuntimeException("No autorizado o no encontrado");
+            throw new OrderTraceNotFoundOrUnauthorizedException("No autorizado o no encontrado");
         }
         return trace;
     }

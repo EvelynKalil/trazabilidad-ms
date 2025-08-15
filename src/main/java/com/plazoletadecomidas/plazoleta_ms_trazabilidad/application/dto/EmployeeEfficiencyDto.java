@@ -4,12 +4,11 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.util.UUID;
-
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class OrderEfficiencyDto {
-    private UUID orderId;
-    private long minutes;
+public class EmployeeEfficiencyDto {
+    private String employeeId;
+    private double avgMinutes;
 }
+

@@ -1,5 +1,6 @@
 package com.plazoletadecomidas.plazoleta_ms_trazabilidad.application.handler;
 
+import com.plazoletadecomidas.plazoleta_ms_trazabilidad.application.dto.EmployeeEfficiencyDto;
 import com.plazoletadecomidas.plazoleta_ms_trazabilidad.application.dto.OrderEfficiencyDto;
 import com.plazoletadecomidas.plazoleta_ms_trazabilidad.application.dto.OrderTraceRequestDto;
 import com.plazoletadecomidas.plazoleta_ms_trazabilidad.domain.api.OrderTraceServicePort;
@@ -16,6 +17,8 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class OrderTraceHandler {
 
+    private static final String STATUS_ENTREGADO = "ENTREGADO";
+    private static final String STATUS_PENDIENTE = "PENDIENTE";
     private final OrderTraceServicePort service;
     private final AuthValidator authValidator;
     private final OrderTraceServicePort servicePort;
@@ -27,17 +30,20 @@ public class OrderTraceHandler {
     }
 
     // HU 18
-    public List<OrderEfficiencyDto> efficiencyOrders(UUID restaurantId) {
+    public List<OrderEfficiencyDto> efficiencyOrders(UUID restaurantId, String token) {
+        authValidator.validate(token, Role.PROPIETARIO); // validación sin guardar en variable
         return service.getOrdersByRestaurant(restaurantId).stream()
                 .map(order -> {
                     var start = order.getLogs().stream()
-                            .filter(l -> "PENDIENTE".equalsIgnoreCase(l.getStatus()))
+                            .filter(l -> STATUS_PENDIENTE.equalsIgnoreCase(l.getStatus()))
                             .findFirst();
                     var end = order.getLogs().stream()
-                            .filter(l -> "ENTREGADO".equalsIgnoreCase(l.getStatus()))
+                            .filter(l -> STATUS_ENTREGADO.equalsIgnoreCase(l.getStatus()))
                             .findFirst();
                     if (start.isPresent() && end.isPresent()) {
-                        long minutes = java.time.Duration.between(start.get().getChangedAt(), end.get().getChangedAt()).toMinutes();
+                        long minutes = java.time.Duration
+                                .between(start.get().getChangedAt(), end.get().getChangedAt())
+                                .toMinutes();
                         return new OrderEfficiencyDto(order.getOrderId(), minutes);
                     }
                     return null;
@@ -45,6 +51,35 @@ public class OrderTraceHandler {
                 .filter(o -> o != null)
                 .toList();
     }
+
+    public List<EmployeeEfficiencyDto> efficiencyByEmployee(UUID restaurantId, String token) {
+        authValidator.validate(token, Role.PROPIETARIO); // igual aquí
+        return service.getOrdersByRestaurant(restaurantId).stream()
+                .filter(order -> order.getLogs().size() >= 2)
+                .collect(java.util.stream.Collectors.groupingBy(
+                        order -> order.getLogs().stream()
+                                .filter(l -> STATUS_ENTREGADO.equalsIgnoreCase(l.getStatus()))
+                                .findFirst()
+                                .map(l -> l.getChangedBy())
+                                .orElse("DESCONOCIDO"),
+                        java.util.stream.Collectors.averagingLong(o -> {
+                            var start = o.getLogs().stream()
+                                    .filter(l -> STATUS_PENDIENTE.equalsIgnoreCase(l.getStatus()))
+                                    .findFirst();
+                            var end = o.getLogs().stream()
+                                    .filter(l -> STATUS_ENTREGADO.equalsIgnoreCase(l.getStatus()))
+                                    .findFirst();
+                            return (start.isPresent() && end.isPresent())
+                                    ? java.time.Duration.between(start.get().getChangedAt(), end.get().getChangedAt()).toMinutes()
+                                    : 0;
+                        })
+                ))
+                .entrySet().stream()
+                .map(e -> new EmployeeEfficiencyDto(e.getKey(), e.getValue()))
+                .toList();
+    }
+
+
 
     public void saveOrderTrace(OrderTraceRequestDto dto, String token) {
 
@@ -61,7 +96,4 @@ public class OrderTraceHandler {
 
         servicePort.save(trace, token);
     }
-
-
-
 }

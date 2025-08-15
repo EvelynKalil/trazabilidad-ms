@@ -7,12 +7,12 @@ import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import org.springframework.stereotype.Component;
 import javax.crypto.SecretKey;
-import java.util.Arrays;
 import java.util.UUID;
 
 @Component
 public class AuthValidator {
 
+    private static final String BEARER_PREFIX = "Bearer ";
     private final JwtUtil jwtUtil;
 
     public AuthValidator(JwtUtil jwtUtil) {
@@ -20,11 +20,11 @@ public class AuthValidator {
     }
 
     public UUID validate(String tokenHeader, Role requiredRole) {
-        if (tokenHeader == null || !tokenHeader.startsWith("Bearer ")) {
+        if (tokenHeader == null || !tokenHeader.startsWith(BEARER_PREFIX)) {
             throw new UnauthorizedException("Token ausente o mal formado");
         }
 
-        String token = tokenHeader.replace("Bearer ", "");
+        String token = tokenHeader.replace(BEARER_PREFIX, "");
         SecretKey secretKey = jwtUtil.getSecretKey();
 
         try {
@@ -37,7 +37,6 @@ public class AuthValidator {
             String userId = claims.getSubject();
             String role = claims.get("role", String.class);
 
-            // Solo validar si requiredRole no es null
             if (requiredRole != null && !requiredRole.name().equals(role)) {
                 throw new UnauthorizedException("No tienes permisos para esta acción");
             }
@@ -50,11 +49,12 @@ public class AuthValidator {
     }
 
 
+
     public String getRoleFromToken(String tokenHeader) {
-        if (tokenHeader == null || !tokenHeader.startsWith("Bearer ")) {
+        if (tokenHeader == null || !tokenHeader.startsWith(BEARER_PREFIX)) {
             throw new UnauthorizedException("Token ausente o mal formado");
         }
-        String token = tokenHeader.replace("Bearer ", "");
+        String token = tokenHeader.replace(BEARER_PREFIX, "");
         SecretKey secretKey = jwtUtil.getSecretKey();
 
         try {

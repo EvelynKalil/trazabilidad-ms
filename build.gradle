@@ -34,6 +34,8 @@ ext {
 	springCloudVersion            = "2021.0.5" // Compatible con Boot 2.7.x
 }
 
+
+
 dependencies {
 	// --- Spring Boot Starters ---
 	implementation "org.springframework.boot:spring-boot-starter-web:${springBootVersion}"
@@ -65,6 +67,8 @@ dependencies {
 	testImplementation 'org.mockito:mockito-core'
 	testImplementation 'org.testcontainers:junit-jupiter:1.19.0'
 	testImplementation 'org.testcontainers:mongodb:1.19.0'
+	testImplementation 'org.springframework.security:spring-security-test'
+
 
 	// --- Usar .env ---
 	implementation 'io.github.cdimascio:dotenv-java:3.0.0'

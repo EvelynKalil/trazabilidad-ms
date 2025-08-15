@@ -10,7 +10,6 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -35,14 +34,14 @@ public class OrderTraceMongoAdapter implements OrderTracePersistencePort {
     public List<OrderTrace> findByCustomerId(UUID customerId) {
         return repository.findByCustomerId(customerId).stream()
                 .map(mapper::toDomain)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
     public List<OrderTrace> findByRestaurantId(UUID restaurantId) {
         return repository.findByRestaurantId(restaurantId).stream()
                 .map(mapper::toDomain)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
